@@ -1,0 +1,36 @@
+Resources:
+  PasswordReminderBotLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /service-role/PasswordReminderBotLambdaRole/
+      RoleName: PasswordReminderBotLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PasswordReminderBotLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:CreateLogGroup
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+              - Effect: Allow
+                Action: 
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/slack-prod-password_reminder_bot:*
+              - Effect: Allow
+                Action: 
+                  - iam:GetCredentialReport
+                  - iam:GenerateCredentialReport
+                  - iam:ListUserTags
+                Resource: "*"
+              
+              
+                      

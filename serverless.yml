@@ -1,0 +1,46 @@
+service: slack
+provider:
+  name: aws
+  region: eu-central-1
+  memorySize: 128
+  runtime: python3.8
+  timeout: 70
+  stage: prod
+
+
+package:
+  exclude:
+    - resources/**
+    - requests-layer.zip
+    - README.md
+
+resources:
+  - ${file(resources/roles/lambda_role.yml)}
+
+layers:
+  requests:
+    name: requests
+    compatibleRuntimes:
+      - python3.8
+      - python3.9
+    package:
+      artifact: requests-layer.zip
+
+
+functions:
+  password_reminder_bot:
+    handler: functions/handler.lambda_handler
+    events:
+      - schedule:
+          name: TriggerAWSBotLambda
+          description: 'will trigger the aws bot lambda function every day at 10am'
+          rate: cron(0 11 * * ? *)
+    environment:
+      Signin_URL: "https://someworkspace.signin.aws.amazon.com/console"
+      oauth: ${ssm:SLACK_AWS_BOT_TOKEN}
+      account_alias: prod
+    role: PasswordReminderBotLambdaRole
+
+
+
+
